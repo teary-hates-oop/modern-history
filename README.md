@@ -1,6 +1,4 @@
-Here’s a clean, professional README.md for your Modern History HSC website project:
 
-```markdown
 # Modern History HSC
 
 A comprehensive, educational website designed as a study guide for the Modern History Higher School Certificate (HSC) course.
@@ -46,7 +44,7 @@ This site provides summaries and insights into key Modern History topics, helpin
 └── civil/
 └── civil.html
 
-````
+```
 
 ---
 
@@ -55,7 +53,7 @@ This site provides summaries and insights into key Modern History topics, helpin
 1. Clone the repository:
    ```bash
    git clone https://github.com/teary-hates-oop/modern-history.git
-````
+   ```
 
 2. Open `index.html` in your browser to start exploring.
 
