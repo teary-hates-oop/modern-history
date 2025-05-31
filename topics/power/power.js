@@ -21,24 +21,6 @@ document.querySelectorAll('.sidenav a').forEach(link => {
 });
 
 /* ============================= */
-/* 🎯 HEADING HIGHLIGHT ON NAVIGATION */
-/* ============================= */
-function highlightSectionHeading(id) {
-  const section = document.getElementById(id);
-  const heading = section?.querySelector("h2, h1");
-  if (heading) {
-    heading.classList.add("highlighted");
-    setTimeout(() => heading.classList.remove("highlighted"), 2000);
-  }
-}
-
-window.addEventListener("hashchange", () => {
-  const id = window.location.hash.substring(1);
-  highlightSectionHeading(id);
-});
-
-
-/* ============================= */
 /* ⬆️ SCROLL-TO-TOP BUTTON LOGIC */
 /* ============================= */
 document.addEventListener('DOMContentLoaded', function () {
@@ -91,6 +73,8 @@ document.addEventListener('contextmenu', function (e) {
   };
 });
 
+
+
 document.addEventListener('click', function () {
   document.getElementById('custom-context-menu').style.display = 'none';
 });
@@ -99,6 +83,24 @@ document.addEventListener('click', function () {
 /* ============================= */
 /* 🔔 TOAST NOTIFICATIONS */
 /* ============================= */
+document.addEventListener('keydown', function (e) {
+  if (e.ctrlKey && e.key === 'c') {
+    e.preventDefault();
+    const selection = window.getSelection();
+    const text = selection.toString().trim();
+
+    if (text) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast("Copied!");
+        selection.removeAllRanges();
+      });
+    } else {
+      showToast("Nothing selected to copy.");
+    }
+  }
+});
+
+
 function showToast(message) {
   const container = document.getElementById('toast-container');
   const toast = document.createElement('div');
@@ -145,3 +147,48 @@ document.addEventListener('click', function (e) {
 document.querySelector('.close-settings').onclick = function () {
   document.getElementById('settings-panel').classList.remove('open');
 };
+
+document.querySelectorAll('input[name="theme"]').forEach((el) => {
+  el.addEventListener('change', function () {
+    const htmlTag = document.documentElement;
+    if (this.value === 'light') {
+      htmlTag.classList.add('light-theme');
+    } else {
+      htmlTag.classList.remove('light-theme');
+    }
+  });
+});
+
+// Sync radio input with theme on load
+// Apply saved theme on load
+window.addEventListener('DOMContentLoaded', () => {
+  const savedTheme = localStorage.getItem('theme') || 'dark'; // default to dark
+  const htmlTag = document.documentElement;
+
+  if (savedTheme === 'light') {
+    htmlTag.classList.add('light-theme');
+  } else {
+    htmlTag.classList.remove('light-theme');
+  }
+
+  // Sync radio buttons
+  document.querySelectorAll('input[name="theme"]').forEach((input) => {
+    input.checked = input.value === savedTheme;
+  });
+});
+
+// Theme change handler with localStorage save
+document.querySelectorAll('input[name="theme"]').forEach((el) => {
+  el.addEventListener('change', function () {
+    const htmlTag = document.documentElement;
+
+    if (this.value === 'light') {
+      htmlTag.classList.add('light-theme');
+      localStorage.setItem('theme', 'light');
+    } else {
+      htmlTag.classList.remove('light-theme');
+      localStorage.setItem('theme', 'dark');
+    }
+  });
+});
+
