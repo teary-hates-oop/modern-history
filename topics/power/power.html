@@ -146,7 +146,7 @@
       <button class="close-settings" aria-label="Close">&times;</button>
     </div>
     <div class="settings-content">
-    <div class="theme-toggle">
+    <div class="radio-toggle">
       <label class="toggle-option">
         <input type="radio" name="theme" value="dark" checked>
         Dark
@@ -155,19 +155,35 @@
         <input type="radio" name="theme" value="light">
         Light
       </label>
-      <span class="theme-label">Visibility</span>
+      <span class="setting-label">Visibility</span>
     </div>
 
-      <label><input type="checkbox" id="reduce-motion"> Reduce Motion</label>
-      <label>
-        Font Size:
-        <select id="font-size-selector">
-          <option value="1rem">Normal</option>
-          <option value="1.1rem">Large</option>
-          <option value="1.25rem">XL</option>
-        </select>
-      </label>
-    </div>
+    <label>
+      <input type="checkbox" id="reduce-motion"> <span class="setting-label">Reduce Motion</span>
+    </label>
+
+    <label>
+      <input type="checkbox" id="enable-tts">
+      <span class="setting-label">Enable Text-to-Speech</span>
+    </label>
+    <label>
+      <div class="custom-dropdown" id="font-size-dropdown">
+      <div class="dropdown-selected">
+        <span>Normal</span>
+        <span class="arrow">&#9662;</span>
+      </div>
+      <ul class="dropdown-options"> 
+        <li data-size="0.5rem">XS</li>
+        <li data-size="0.875rem">Small</li>
+        <li data-size="1rem">Normal</li>
+        <li data-size="1.25rem">Large</li>
+        <li data-size="1.5rem">XL</li>
+      </ul>
+      </div>
+      <span class="setting-label">Font Size</span>
+    </label>
+
+    
   </div>
 
   <!-- ============================= -->

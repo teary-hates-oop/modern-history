@@ -73,6 +73,9 @@ body {
   color: var(--dark-bg);   
 }
 
+body, h1, h2, h3, p, li, a, label, span {
+  transition: font-size 0.5s ease;
+}
 
 /* ============================= */
 /* 🔝 NAVBAR */
@@ -270,7 +273,7 @@ body {
   list-style: none;
   padding: 6px 0;
   margin: 0;
-  z-index: 3;
+  z-index: 99;
   width: 160px;
   opacity: 0;
   transform: translateY(-10px);
@@ -299,7 +302,7 @@ body {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  z-index: 3;
+  z-index: 50;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -460,7 +463,11 @@ body {
 
 .settings-header h3 {
   margin: 0;
-  font-size: 1.3rem;
+  font-size: 2rem;
+  color: var(--accent);
+  letter-spacing: 1.1px;
+  border-bottom: 3px solid var(--section-line);
+  width: fit-content;
 }
 
 .close-settings {
@@ -492,15 +499,8 @@ body {
   align-items: center;
 }
 
-.settings-content select {
-  background-color: var(--dark-bg);
-  color: var(--font-color);
-  border: 1px solid var(--accent2);
-  padding: 6px;
-  border-radius: 4px;
-}
 
-.theme-toggle {
+.radio-toggle {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -515,16 +515,15 @@ body {
   cursor: pointer;
 }
 
-.theme-label {
+.setting-label {
   margin-left: auto;
-  font-size: 0.9rem;
-  color: var(--font-color);
+  color: var(--accent3);
+  font-size: 1.3rem;
+  right: 0;
 }
 
 .toggle-option input[type="radio"]:hover {
   transform: scale(1.2);
-  border-color: var(--accent2);
-  background-color: var(--context-hover);
 }
 
 .toggle-option input[type="radio"] {
@@ -544,7 +543,7 @@ body {
 
 .toggle-option input[type="radio"]:checked {
   border-color: var(--accent);
-  background-color: var(--nav-color);
+  background-color: #ee1e78;
 }
 
 .toggle-option input[type="radio"]::after {
@@ -554,16 +553,96 @@ body {
   left: 3px;
   width: 6px;
   height: 6px;
-  background-color: var(--nav-color);
+  background-color: none;
   border-radius: 50%;
   opacity: 0;
   transition: opacity 0.2s ease;
 }
 
+.custom-dropdown {
+  position: relative;
+  font-family: var(--font);
+  color: var(--font-color);
+  user-select: none;
+  width: 10em;
+  font-size: 1rem; /* 👈 fixes text scaling */
+}
+
+.dropdown-selected {
+  border: 2px solid var(--accent3); /* changed from accent2 */
+  background-color: var(--dark-bg);
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 2; /* ⬅️ ensure this stays above the options */
+}
+
+.dropdown-selected:hover {
+  border-color: rgba(172, 163, 240, 0.7); /* --accent3 w/ alpha */
+  background-color: rgba(172, 163, 240, 0.05);
+  color: var(--nav-color); /* 👈 text color on hover */
+}
+
+.dropdown-selected:hover span {
+  color: var(--nav-color); /* 👈 specifically the text inside */
+}
+
+.dropdown-selected .arrow {
+  transition: transform 0.3s ease;
+}
+
+.custom-dropdown.open .dropdown-selected .arrow {
+  transform: rotate(180deg);
+}
+
+.dropdown-options {
+  margin-top: -5px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  background-color: var(--dark-bg);
+  border: 2px solid var(--accent3);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  z-index: 9;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  overflow: hidden;
+}
+
+.custom-dropdown.open .dropdown-options {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(0);
+}
+
+.dropdown-options li {
+  padding: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dropdown-options li:hover {
+  background-color: rgba(172, 163, 240, 0.2);
+  color: var(--nav-color);
+}
+
+
 .toggle-option input[type="radio"]:checked::after {
   opacity: 1;
 }
 
-body, .settings-panel, input, select {
+body, .settings-panel, input{
+  transition: all 0.3s ease;
+}
+
+html {
   transition: all 0.3s ease;
 }

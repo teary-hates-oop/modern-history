@@ -192,3 +192,58 @@ document.querySelectorAll('input[name="theme"]').forEach((el) => {
   });
 });
 
+const dropdown = document.getElementById("font-size-dropdown");
+const selected = dropdown.querySelector(".dropdown-selected span");
+const options = dropdown.querySelectorAll(".dropdown-options li");
+
+// Elements to scale and store their original sizes
+const elementsToScale = document.querySelectorAll("body, h1, h2, h3, p, li, a, label, span");
+const originalFontSizes = new Map();
+
+// Cache original sizes
+elementsToScale.forEach(el => {
+  const style = window.getComputedStyle(el);
+  const size = parseFloat(style.fontSize);
+  originalFontSizes.set(el, size);
+});
+
+// Helper function to apply scale
+function applyFontScale(factor) {
+  originalFontSizes.forEach((originalSize, el) => {
+    el.style.fontSize = `${originalSize * factor}px`;
+  });
+}
+
+// Load from localStorage if available
+const savedFontSize = localStorage.getItem("preferredFontScale");
+if (savedFontSize) {
+  const factor = parseFloat(savedFontSize);
+  applyFontScale(factor);
+
+  // Also update dropdown text
+  const match = Array.from(options).find(opt => parseFloat(opt.dataset.size) === factor);
+  if (match) selected.textContent = match.textContent;
+}
+
+dropdown.addEventListener("click", () => {
+  dropdown.classList.toggle("open");
+});
+
+options.forEach(option => {
+  option.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const factor = parseFloat(e.target.getAttribute("data-size"));
+    selected.textContent = e.target.textContent;
+    dropdown.classList.remove("open");
+
+    applyFontScale(factor);
+    localStorage.setItem("preferredFontScale", factor);
+  });
+});
+
+document.addEventListener("click", (e) => {
+  if (!dropdown.contains(e.target)) {
+    dropdown.classList.remove("open");
+  }
+});
+
