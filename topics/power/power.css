@@ -27,6 +27,7 @@
   --box-shadow-settings: -2px 0 10px #00000033;
   --toast-shadow: 0 4px 12px rgba(0, 0, 0, 0.651);
   --context-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  --tts-bg: rgba(30, 30, 40, 0.6);
 }
 
 .light-theme {
@@ -55,6 +56,7 @@
   --box-shadow-settings: -2px 0 10px #aca3f033;
   --toast-shadow: 0 4px 12px rgba(80,66,185,0.15);
   --context-shadow: 0 4px 12px rgba(80,66,185,0.15);
+  --tts-bg: var(--sidenav-bg);
 }
 
 /* ============================= */
@@ -221,7 +223,7 @@ body, h1, h2, h3, p, li, a, label, span {
   border: none;
   cursor: pointer;
   transform: rotate(270deg);
-  transition: transform 0.2s ease;
+  transition: all 0.2s ease;
   padding: 0;
   z-index: 2;
 }
@@ -238,6 +240,11 @@ body, h1, h2, h3, p, li, a, label, span {
   top: 50%;
   left: 50%;
   transform-origin: left center;
+  transition: background-color 0.3s ease;
+}
+
+.arrow-line:hover {
+  background-color: var(--accent);
 }
 
 .line-left {
@@ -294,6 +301,23 @@ body, h1, h2, h3, p, li, a, label, span {
   color: var(--accent);
 }
 
+.context-menu svg {
+  fill: var(--font-color);
+  margin-bottom: -5.4px;
+}
+
+.context-menu code {
+  font-size: 0.6em;
+  width: fit-content;
+  margin-left: 3em;
+  padding: none;
+  margin-top: 5px;
+  transition: color 0.3s ease;
+  background-color: var(--code-bg);
+  border-radius: 4px;
+  margin-bottom: auto;
+  font-style: italic;
+}
 
 /* ============================= */
 /* 🔔 TOAST NOTIFICATIONS */
@@ -639,10 +663,104 @@ body, h1, h2, h3, p, li, a, label, span {
   opacity: 1;
 }
 
+.settings-content input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--accent2);
+  border-radius: 4px;
+  background-color: var(--dark-bg);
+  transition: all 0.3s ease;
+  position: relative;
+  cursor: pointer;
+}
+
+/* Hover effect */
+.settings-content input[type="checkbox"]:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 4px var(--accent3);
+}
+
+/* Checked state */
+.settings-content input[type="checkbox"]:checked {
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Custom checkmark */
+.settings-content input[type="checkbox"]::after {
+  color: #fff;
+  font-size: 12px;
+  position: absolute;
+  top: 0px;
+  left: 2px;
+  display: none;
+}
+
+/* Show checkmark when checked */
+.settings-content input[type="checkbox"]:checked::after {
+  display: block;
+}
+
+
 body, .settings-panel, input{
   transition: all 0.3s ease;
 }
 
 html {
   transition: all 0.3s ease;
+}
+
+/* ============================= */
+/* TTS PLAYER */
+/* ============================= */
+/* TTS Player Container */
+
+.tts-player {
+  position: fixed;
+  bottom: 0;
+  left: 25%;
+  backdrop-filter: blur(30px); 
+  background: var(--tts-bg);
+  border: var(--border-sidenav);
+  box-shadow: var(--box-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  z-index: 3;
+  width: 600px;
+  border-radius: 8px;
+  -webkit-backdrop-filter: blur(20px); 
+  opacity: 0.98;
+  transition: all 0.3s ease;
+}
+
+.tts-player.visible {
+  transform: translateY(0);
+}
+
+.tts-control {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin: 0 10px;
+  color: var(--nav-color);
+}
+
+#speed-control {
+  margin-left: 10px;
+}
+
+.tts-word.highlight {
+  background-color: rgba(172, 163, 240, 0.4);
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.tts-control svg {
+  fill: var(--font-color);
 }

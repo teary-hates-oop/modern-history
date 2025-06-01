@@ -247,3 +247,201 @@ document.addEventListener("click", (e) => {
   }
 });
 
+/* ============================= */
+/* TEXT TO SPEECH */
+/* ============================= */
+const ttsToggle = document.getElementById("enable-tts");
+const ttsPlayer = document.getElementById("tts-player");
+const playBtn = document.getElementById("play-btn");
+const playIcon = document.getElementById("play-icon");
+const pauseIcon = document.getElementById("pause-icon");
+const prevBtn = document.getElementById("prev-btn");
+const nextBtn = document.getElementById("next-btn");
+const startFromHereBtn = document.getElementById("start-from-here");
+const content = document.getElementById("content");
+
+let readableElements = [];
+let currentElementIndex = 0;
+let utterance = null;
+let isPlaying = false;
+let isPaused = false;
+
+function wrapWordsInElement(element) {
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+  const textNodes = [];
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    if (node.nodeValue.trim()) textNodes.push(node);
+  }
+  textNodes.forEach(node => {
+    const parent = node.parentNode;
+    const words = node.nodeValue.split(/(\s+)/);
+    const frag = document.createDocumentFragment();
+    words.forEach(word => {
+      if (word.trim()) {
+        const span = document.createElement("span");
+        span.className = "tts-word";
+        span.textContent = word;
+        frag.appendChild(span);
+      } else {
+        frag.appendChild(document.createTextNode(word));
+      }
+    });
+    parent.replaceChild(frag, node);
+  });
+}
+
+function unwrapWordsInElement(element) {
+  const spans = element.querySelectorAll('.tts-word');
+  spans.forEach(span => {
+    const textNode = document.createTextNode(span.textContent);
+    span.parentNode.replaceChild(textNode, span);
+  });
+}
+
+function clearHighlights(element) {
+  const highlighted = element.querySelectorAll('.tts-word.highlight');
+  highlighted.forEach(el => el.classList.remove('highlight'));
+}
+
+function getRandomVoice() {
+  const voices = speechSynthesis.getVoices();
+  if (!voices.length) return null;
+
+  const maleVoices = voices.filter(v =>
+    /male|man|david|alex|fred|dan/i.test(v.name + v.voiceURI)
+  );
+
+  return maleVoices.length ? maleVoices[0] : voices[0];
+}
+
+function speakElement(index) {
+  if (index < 0 || index >= readableElements.length) return;
+  currentElementIndex = index;
+  const element = readableElements[index];
+  unwrapWordsInElement(element);
+  wrapWordsInElement(element);
+  const text = element.textContent;
+  utterance = new SpeechSynthesisUtterance(text);
+  utterance.voice = getRandomVoice();
+  utterance.onboundary = (event) => {
+    if (event.name === 'word') {
+      const wordSpans = element.querySelectorAll('.tts-word');
+      const charIndex = event.charIndex;
+      let currentChar = 0;
+      for (let i = 0; i < wordSpans.length; i++) {
+        const span = wordSpans[i];
+        const spanText = span.textContent;
+        if (currentChar + spanText.length > charIndex) {
+          clearHighlights(element);
+          span.classList.add('highlight');
+          break;
+        }
+        currentChar += spanText.length + 1;
+      }
+    }
+  };
+  utterance.onend = () => {
+    clearHighlights(element);
+    unwrapWordsInElement(element);
+    if (currentElementIndex < readableElements.length - 1) {
+      speakElement(currentElementIndex + 1);
+    } else {
+      isPlaying = false;
+      isPaused = false;
+      updatePlayButton();
+    }
+  };
+  window.speechSynthesis.speak(utterance);
+  isPlaying = true;
+  isPaused = false;
+  updatePlayButton();
+}
+
+function cancelSpeech() {
+  window.speechSynthesis.cancel();
+  if (readableElements[currentElementIndex]) {
+    clearHighlights(readableElements[currentElementIndex]);
+    unwrapWordsInElement(readableElements[currentElementIndex]);
+  }
+  isPlaying = false;
+  isPaused = false;
+  updatePlayButton();
+}
+
+function updatePlayButton() {
+  if (isPlaying) {
+    playIcon.style.display = "none";
+    pauseIcon.style.display = "inline";
+  } else {
+    playIcon.style.display = "inline";
+    pauseIcon.style.display = "none";
+  }
+}
+
+ttsToggle.addEventListener("change", () => {
+  if (ttsToggle.checked) {
+    ttsPlayer.classList.add("visible");
+    ttsPlayer.classList.remove("hidden");
+    ttsPlayer.style.bottom = "20px";
+    readableElements = Array.from(document.querySelectorAll('#content h1, #content h2, #content h3, #content p, #content li'));
+    const savedIndex = sessionStorage.getItem("ttsElementIndex");
+    currentElementIndex = savedIndex ? parseInt(savedIndex) : 0;
+    speakElement(currentElementIndex);
+  } else {
+    sessionStorage.setItem("ttsElementIndex", currentElementIndex);
+    cancelSpeech();
+    ttsPlayer.style.bottom = "0px";
+    ttsPlayer.classList.remove("visible");
+    ttsPlayer.classList.add("hidden");
+  }
+});
+
+playBtn.addEventListener("click", () => {
+  if (isPlaying) {
+    window.speechSynthesis.pause();
+    isPaused = true;
+    isPlaying = false;
+    updatePlayButton();
+  } else if (isPaused) {
+    window.speechSynthesis.resume();
+    isPlaying = true;
+    isPaused = false;
+    updatePlayButton();
+  } else {
+    speakElement(currentElementIndex);
+  }
+});
+
+prevBtn.addEventListener("click", () => {
+  if (currentElementIndex > 0) {
+    cancelSpeech();
+    speakElement(currentElementIndex - 1);
+  }
+});
+
+nextBtn.addEventListener("click", () => {
+  if (currentElementIndex < readableElements.length - 1) {
+    cancelSpeech();
+    speakElement(currentElementIndex + 1);
+  }
+});
+
+startFromHereBtn.addEventListener("click", () => {
+  content.addEventListener("click", startFromHereHandler, { once: true });
+});
+
+function startFromHereHandler(event) {
+  const clickedElement = event.target.closest('#content h1, #content h2, #content h3, #content p, #content li');
+  if (clickedElement) {
+    const index = readableElements.indexOf(clickedElement);
+    if (index !== -1) {
+      cancelSpeech();
+      speakElement(index);
+    }
+  }
+}
+
+window.speechSynthesis.onvoiceschanged = () => {
+  getRandomVoice();
+};
