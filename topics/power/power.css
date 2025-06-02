@@ -273,18 +273,20 @@ body, h1, h2, h3, p, li, a, label, span {
 .context-menu {
   display: none;
   position: absolute;
-  background-color: var(--dark-bg);
-  border: 1px solid var(--accent2);
-  border-radius: 6px;
-  box-shadow: var(--context-shadow);
   list-style: none;
   padding: 6px 0;
   margin: 0;
-  z-index: 99;
+  z-index: 15;
   width: 160px;
-  opacity: 0;
   transform: translateY(-10px);
   animation: dropdown-fade 0.2s ease-in;
+  background: var(--sidenav-bg);
+  border-radius: 8px;
+  box-shadow: var(--box-shadow);
+  border: var(--border-sidenav); 
+  backdrop-filter: blur(20px); 
+  -webkit-backdrop-filter: blur(20px); 
+  opacity: 0.98;
 }
 
 .context-menu li {
@@ -464,11 +466,18 @@ body, h1, h2, h3, p, li, a, label, span {
   right: -330px;
   width: 280px;
   height: 100%;
-  background: var(--dark-bg);
-  border-left: 1px solid var(--accent2);
-  box-shadow: var(--box-shadow-settings);
   padding: 20px;
   z-index: 1;
+  background: var(--sidenav-bg);
+  overflow-x: hidden;
+  padding: 12px 10px;
+  border-radius: 8px;
+  box-shadow: var(--box-shadow);
+  border: var(--border-sidenav); 
+  margin-right: 2px;
+  backdrop-filter: blur(20px); 
+  -webkit-backdrop-filter: blur(20px); 
+  opacity: 0.98;
   transition: right 0.3s ease;
   color: var(--font-color);
   font-family: var(--font);
