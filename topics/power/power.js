@@ -20,6 +20,29 @@ document.querySelectorAll('.sidenav a').forEach(link => {
   });
 });
 
+
+let scrollTimeout;
+
+window.addEventListener('scroll', () => {
+  const progressBar = document.getElementById('progress-bar');
+  const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+  const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+  const scrolled = (scrollTop / scrollHeight) * 100;
+
+  // Update progress bar width & ensure it's visible
+  progressBar.style.width = scrolled + "%";
+  progressBar.style.opacity = 1;
+
+  // Clear the previous timeout
+  clearTimeout(scrollTimeout);
+
+  // Set a new timeout to hide the bar after 800ms
+  scrollTimeout = setTimeout(() => {
+    progressBar.style.opacity = 0;
+  }, 800);
+});
+
+
 /* ============================= */
 /* ⬆️ SCROLL-TO-TOP BUTTON LOGIC */
 /* ============================= */
@@ -119,6 +142,7 @@ function showToast(message) {
     });
   }, 1500);
 }
+
 
 /* ============================= */
 /* ⚙️ SETTINGS PANEL TOGGLE */
@@ -247,201 +271,108 @@ document.addEventListener("click", (e) => {
   }
 });
 
-/* ============================= */
-/* TEXT TO SPEECH */
-/* ============================= */
-const ttsToggle = document.getElementById("enable-tts");
-const ttsPlayer = document.getElementById("tts-player");
-const playBtn = document.getElementById("play-btn");
-const playIcon = document.getElementById("play-icon");
-const pauseIcon = document.getElementById("pause-icon");
-const prevBtn = document.getElementById("prev-btn");
-const nextBtn = document.getElementById("next-btn");
-const startFromHereBtn = document.getElementById("start-from-here");
-const content = document.getElementById("content");
+const progressBar = document.getElementById('progress-bar');
+const disableProgress = document.getElementById('disable-progress');
 
-let readableElements = [];
-let currentElementIndex = 0;
-let utterance = null;
-let isPlaying = false;
-let isPaused = false;
-
-function wrapWordsInElement(element) {
-  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
-  const textNodes = [];
-  while (walker.nextNode()) {
-    const node = walker.currentNode;
-    if (node.nodeValue.trim()) textNodes.push(node);
+disableProgress.addEventListener('change', () => {
+  if (disableProgress.checked) {
+    progressBar.style.display = 'none';
+    localStorage.setItem('progressBarDisabled', 'true');
+  } else {
+    progressBar.style.display = 'block';
+    localStorage.removeItem('progressBarDisabled');
   }
-  textNodes.forEach(node => {
-    const parent = node.parentNode;
-    const words = node.nodeValue.split(/(\s+)/);
-    const frag = document.createDocumentFragment();
-    words.forEach(word => {
-      if (word.trim()) {
-        const span = document.createElement("span");
-        span.className = "tts-word";
-        span.textContent = word;
-        frag.appendChild(span);
-      } else {
-        frag.appendChild(document.createTextNode(word));
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const isDisabled = localStorage.getItem('progressBarDisabled') === 'true';
+  disableProgress.checked = isDisabled;
+  progressBar.style.display = isDisabled ? 'none' : 'block';
+});
+
+/* ============================= */
+/* SIDENAV */
+/* ============================= */
+document.addEventListener("DOMContentLoaded", () => {
+  const content = document.getElementById("content");
+  const sidenav = document.querySelector(".sidenav");
+
+  if (!content || !sidenav) return;
+
+  const headings = content.querySelectorAll("h1, h2");
+  const toc = document.createElement("ul");
+  toc.classList.add("toc");
+
+  let currentLevel = 1;
+  let currentList = toc;
+  const listStack = [toc];
+
+  headings.forEach((heading, index) => {
+    const level = parseInt(heading.tagName.substring(1));
+    if (!heading.id) {
+      heading.id = `heading-${index}`;
+    }
+
+    const li = document.createElement("li");
+    li.classList.add(`level-${level}`);
+    const a = document.createElement("a");
+    a.href = `#${heading.id}`;
+    a.textContent = heading.textContent;
+    li.appendChild(a);
+
+    if (level > currentLevel) {
+      const newList = document.createElement("ul");
+      listStack[listStack.length - 1].lastElementChild.appendChild(newList);
+      listStack.push(newList);
+      currentList = newList;
+    } else if (level < currentLevel) {
+      listStack.splice(level - currentLevel);
+      currentList = listStack[listStack.length - 1];
+    }
+
+    currentList.appendChild(li);
+    currentLevel = level;
+  });
+
+  sidenav.appendChild(toc);
+
+  // Smooth scrolling
+  sidenav.querySelectorAll("a").forEach(anchor => {
+    anchor.addEventListener("click", function (e) {
+      e.preventDefault();
+      const target = document.getElementById(this.getAttribute("href").substring(1));
+      if (target) {
+        window.scrollTo({
+          top: target.offsetTop - 40,
+          behavior: "smooth"
+        });
       }
     });
-    parent.replaceChild(frag, node);
   });
-}
 
-function unwrapWordsInElement(element) {
-  const spans = element.querySelectorAll('.tts-word');
-  spans.forEach(span => {
-    const textNode = document.createTextNode(span.textContent);
-    span.parentNode.replaceChild(textNode, span);
-  });
-}
+  // Scrollspy functionality
+  const observerOptions = {
+    root: null,
+    rootMargin: "0px 0px -80% 0px",
+    threshold: 0
+  };
 
-function clearHighlights(element) {
-  const highlighted = element.querySelectorAll('.tts-word.highlight');
-  highlighted.forEach(el => el.classList.remove('highlight'));
-}
-
-function getRandomVoice() {
-  const voices = speechSynthesis.getVoices();
-  if (!voices.length) return null;
-
-  const maleVoices = voices.filter(v =>
-    /male|man|david|alex|fred|dan/i.test(v.name + v.voiceURI)
-  );
-
-  return maleVoices.length ? maleVoices[0] : voices[0];
-}
-
-function speakElement(index) {
-  if (index < 0 || index >= readableElements.length) return;
-  currentElementIndex = index;
-  const element = readableElements[index];
-  unwrapWordsInElement(element);
-  wrapWordsInElement(element);
-  const text = element.textContent;
-  utterance = new SpeechSynthesisUtterance(text);
-  utterance.voice = getRandomVoice();
-  utterance.onboundary = (event) => {
-    if (event.name === 'word') {
-      const wordSpans = element.querySelectorAll('.tts-word');
-      const charIndex = event.charIndex;
-      let currentChar = 0;
-      for (let i = 0; i < wordSpans.length; i++) {
-        const span = wordSpans[i];
-        const spanText = span.textContent;
-        if (currentChar + spanText.length > charIndex) {
-          clearHighlights(element);
-          span.classList.add('highlight');
-          break;
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const id = entry.target.id;
+      const link = sidenav.querySelector(`a[href="#${id}"]`);
+      if (link) {
+        if (entry.isIntersecting) {
+          link.classList.add("active");
+        } else {
+          link.classList.remove("active");
         }
-        currentChar += spanText.length + 1;
       }
-    }
-  };
-  utterance.onend = () => {
-    clearHighlights(element);
-    unwrapWordsInElement(element);
-    if (currentElementIndex < readableElements.length - 1) {
-      speakElement(currentElementIndex + 1);
-    } else {
-      isPlaying = false;
-      isPaused = false;
-      updatePlayButton();
-    }
-  };
-  window.speechSynthesis.speak(utterance);
-  isPlaying = true;
-  isPaused = false;
-  updatePlayButton();
-}
+    });
+  }, observerOptions);
 
-function cancelSpeech() {
-  window.speechSynthesis.cancel();
-  if (readableElements[currentElementIndex]) {
-    clearHighlights(readableElements[currentElementIndex]);
-    unwrapWordsInElement(readableElements[currentElementIndex]);
-  }
-  isPlaying = false;
-  isPaused = false;
-  updatePlayButton();
-}
-
-function updatePlayButton() {
-  if (isPlaying) {
-    playIcon.style.display = "none";
-    pauseIcon.style.display = "inline";
-  } else {
-    playIcon.style.display = "inline";
-    pauseIcon.style.display = "none";
-  }
-}
-
-ttsToggle.addEventListener("change", () => {
-  if (ttsToggle.checked) {
-    ttsPlayer.classList.add("visible");
-    ttsPlayer.classList.remove("hidden");
-    ttsPlayer.style.bottom = "20px";
-    readableElements = Array.from(document.querySelectorAll('#content h1, #content h2, #content h3, #content p, #content li'));
-    const savedIndex = sessionStorage.getItem("ttsElementIndex");
-    currentElementIndex = savedIndex ? parseInt(savedIndex) : 0;
-    speakElement(currentElementIndex);
-  } else {
-    sessionStorage.setItem("ttsElementIndex", currentElementIndex);
-    cancelSpeech();
-    ttsPlayer.style.bottom = "0px";
-    ttsPlayer.classList.remove("visible");
-    ttsPlayer.classList.add("hidden");
-  }
+  headings.forEach(heading => {
+    observer.observe(heading);
+  });
 });
 
-playBtn.addEventListener("click", () => {
-  if (isPlaying) {
-    window.speechSynthesis.pause();
-    isPaused = true;
-    isPlaying = false;
-    updatePlayButton();
-  } else if (isPaused) {
-    window.speechSynthesis.resume();
-    isPlaying = true;
-    isPaused = false;
-    updatePlayButton();
-  } else {
-    speakElement(currentElementIndex);
-  }
-});
-
-prevBtn.addEventListener("click", () => {
-  if (currentElementIndex > 0) {
-    cancelSpeech();
-    speakElement(currentElementIndex - 1);
-  }
-});
-
-nextBtn.addEventListener("click", () => {
-  if (currentElementIndex < readableElements.length - 1) {
-    cancelSpeech();
-    speakElement(currentElementIndex + 1);
-  }
-});
-
-startFromHereBtn.addEventListener("click", () => {
-  content.addEventListener("click", startFromHereHandler, { once: true });
-});
-
-function startFromHereHandler(event) {
-  const clickedElement = event.target.closest('#content h1, #content h2, #content h3, #content p, #content li');
-  if (clickedElement) {
-    const index = readableElements.indexOf(clickedElement);
-    if (index !== -1) {
-      cancelSpeech();
-      speakElement(index);
-    }
-  }
-}
-
-window.speechSynthesis.onvoiceschanged = () => {
-  getRandomVoice();
-};

@@ -18,7 +18,7 @@
 </head>
 
 <body>
-
+  <div id="progress-bar"></div>
   <!-- ============================= -->
   <!-- 🧭 NAVBAR -->
   <!-- ============================= -->
@@ -38,6 +38,19 @@
   <!-- 📄 MAIN CONTENT -->
   <!-- ============================= -->
   <div class="content" id="content">
+    <h1 class="heading" id="introduction">Introduction</h1>
+    <section>
+      <p>Modern History helps to foster a sense of belonging to a common humanity, to empower
+learners to become active citizens in crafting a more peaceful, tolerant and secure world. We begin our
+study exploring the Core Study: <b>Power and Authority</b> in the Modern World 1919–1946, where we look
+at the rise of dictatorships, the machinations of the Nazi Party and the search for peace and security in
+the world. This dark period of history illustrates the dangers of discrimination, unchecked prejudice
+and dehumanisation. It highlights the nature of human responses to these complex events, raising
+important considerations on the motivations and pressures people face and how they react to them. 
+</p>
+    </section>
+
+
     <h1 class="heading" id="syllabus">Syllabus</h1>
 
     <!-- 🌍 Survey -->
@@ -85,19 +98,17 @@
           </ul>
         </li>
       </ul>
+      <img src="https://www.htavshop.com.au/wp-content/uploads/2021/02/Modern-History-1_cover_1000.jpg" alt="Modern History Textbook Cover" class="textbook-cover">
     </section>
+
+
+    
   </div>
 
   <!-- ============================= -->
   <!-- 📎 SIDENAV -->
   <!-- ============================= -->
   <div class="sidenav">
-    <a href="#syllabus">Syllabus</a>
-    <a href="#subtopic" class="subitem">subsection</a>
-    <a href="#subtopic2" class="subitem">subsection 2</a>
-    <a href="#services">Dictatorships</a>
-    <a href="#clients">The Nazi Regime</a>
-    <a href="#contact">Peace & Security</a>
     <button class="scroll-top-btn" aria-label="Scroll to top">
       <div class="arrow-line line-left"></div>
       <div class="arrow-line line-right"></div>
@@ -170,37 +181,9 @@
     </label>
 
     <label>
-      <input type="checkbox" id="enable-tts">
-      <span class="setting-label">Enable Text-to-Speech</span>
+      <input type="checkbox" id="disable-progress"> <span class="setting-label">Disable progress bar</span>
     </label>
-<div id="tts-player" class="tts-player hidden">
-  <button id="prev-btn" class="tts-control" aria-label="Previous">
-    <!-- Skip Previous SVG -->
-    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px">
-      <path d="M220-240v-480h80v480h-80Zm520 0L380-480l360-240v480Zm-80-240Zm0 90v-180l-136 90 136 90Z"/>
-    </svg>
-  </button>
-  <button id="play-btn" class="tts-control" aria-label="Play/Pause">
-    <!-- Play SVG -->
-    <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px">
-      <path d="M320-200v-560l440 280-440 280Zm80-280Zm0 134 210-134-210-134v268Z"/>
-    </svg>
-    <!-- Pause SVG (hidden by default) -->
-    <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" style="display: none;">
-      <path d="M520-200v-560h240v560H520Zm-320 0v-560h240v560H200Zm400-80h80v-400h-80v400Zm-320 0h80v-400h-80v400Zm0-400v400-400Zm320 0v400-400Z"/>
-    </svg>
-  </button>
-  <button id="next-btn" class="tts-control" aria-label="Next">
-    <!-- Skip Forward SVG -->
-    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px">
-      <path d="M660-240v-480h80v480h-80Zm-440 0v-480l360 240-360 240Zm80-240Zm0 90 136-90-136-90v180Z"/>
-    </svg>
-  </button>
-</div>
-
 <!-- Content to Read -->
-
-
     <label>
       <div class="custom-dropdown" id="font-size-dropdown">
       <div class="dropdown-selected">
