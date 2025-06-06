@@ -92,6 +92,7 @@ document.addEventListener('contextmenu', function (e) {
   copyOption.onclick = function () {
     if (selection) {
       navigator.clipboard.writeText(selection).then(() => showToast("Text copied!"));
+      selection.removeAllRanges(); 
     } else if (lastRightClickedImage) {
       const imgUrl = e.target.src;
         fetch(lastRightClickedImage.src)
@@ -105,11 +106,16 @@ document.addEventListener('contextmenu', function (e) {
         .catch(() => {
           navigator.clipboard.writeText(lastRightClickedImage.src).then(() => showToast("Copied image URL (could not copy image directly)"));
         });
+        selection.removeAllRanges();
     }
   };
 });
 
-
+const inspectOption = document.getElementById('inspect');
+inspectOption.onclick = function () {
+  showToast("Browsers don't let me do this, sorry!");
+  showToast("Use <code> <em>ctrl+shift+i</em> </code> :)");
+}
 
 document.addEventListener('click', function () {
   document.getElementById('custom-context-menu').style.display = 'none';
@@ -136,7 +142,7 @@ document.addEventListener('keydown', function (e) {
         .then(blob => {
           const item = new ClipboardItem({ [blob.type]: blob });
           navigator.clipboard.write([item]).then(() => {
-            showToast("🖼️ Image copied to clipboard!");
+            showToast("Image copied to clipboard!");
           });
         })
         .catch(() => {
@@ -401,3 +407,119 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+/* ============================= */
+/* ABOUT ME SECTION */
+/* ============================= */
+function scrambleText(targetEl, finalText, speed = 30) {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let iterations = 0;
+
+  const interval = setInterval(() => {
+    targetEl.textContent = finalText
+      .split("")
+      .map((char, i) => {
+        if (i < iterations) return finalText[i];
+        return chars[Math.floor(Math.random() * chars.length)];
+      })
+      .join("");
+
+    if (iterations >= finalText.length) {
+      clearInterval(interval);
+    }
+
+    iterations += 1 / 2;
+  }, speed);
+}
+
+// Show About window
+const about = document.getElementById("about");
+about.addEventListener("click", (e) => {
+  const modal = document.getElementById("about-window");
+  const scramble = document.getElementById("scramble-text");
+
+  modal.classList.add("visible");
+  scramble.textContent = "████████████";
+  scrambleText(scramble, "made by teary");
+});
+
+// ESC to close
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    document.getElementById("about-window").classList.remove("visible");
+  }
+});
+
+// click outside to close
+document.getElementById("about-window").addEventListener("click", (e) => {
+  if (e.target.id === "about-window") {
+    e.target.classList.remove("visible");
+  }
+});
+
+/* ============================= */
+/* Konami Sequence */
+/* ============================= */
+const konamiSequence = [
+  "t", "e", "a", "r", "y"
+];
+
+let konamiIndex = 0;
+
+document.addEventListener("keydown", function (e) {
+  const key = e.key;
+
+  if (key.toLowerCase() === konamiSequence[konamiIndex].toLowerCase()) {
+    konamiIndex++;
+    if (konamiIndex === konamiSequence.length) {
+      konamiIndex = 0;
+      triggerKonamiEgg();
+    }
+  } else {
+    konamiIndex = 0;
+  }
+});
+function triggerKonamiEgg() {
+  const content = document.querySelector("#content") || document.body;
+  const originalTransition = content.style.transition || "";
+  const originalFilter = content.style.filter || "";
+  const originalColor = content.style.color || "";
+
+  // Add swirl effect
+  content.style.transition = "all 5s ease-in-out";
+  content.style.transform = "rotate(720deg)";
+  content.style.filter = "hue-rotate(360deg) saturate(2)";
+  content.style.color = "transparent";
+  content.style.backgroundImage = "linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)";
+  content.style.backgroundClip = "text";
+  content.style.webkitBackgroundClip = "text";
+  showToast(":)");
+  // Add swirl to all children (optional deeper effect)
+  // const allEls = content.querySelectorAll("*");
+  // allEls.forEach(el => {
+  //   el.style.transition = "all 0.3s ease";
+  //   el.style.color = "transparent";
+  //   el.style.backgroundImage = "linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet)";
+  //   el.style.backgroundClip = "text";
+  //   el.style.webkitBackgroundClip = "text";
+  //   el.style.transform = "rotate(10deg)";
+  // });
+
+  setTimeout(() => {
+    // Reset styles
+    content.style.transition = originalTransition;
+    content.style.transform = "none";
+    content.style.filter = originalFilter;
+    content.style.color = originalColor;
+    content.style.backgroundImage = "";
+    content.style.backgroundClip = "";
+    content.style.webkitBackgroundClip = "";
+
+    allEls.forEach(el => {
+      el.style.color = "";
+      el.style.backgroundImage = "";
+      el.style.backgroundClip = "";
+      el.style.webkitBackgroundClip = "";
+      el.style.transform = "";
+    });
+  }, 5000);
+}

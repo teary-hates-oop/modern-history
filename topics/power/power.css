@@ -30,7 +30,7 @@
   --box-shadow-settings: -2px 0 10px #00000033;
   --toast-shadow: 0 4px 12px rgba(0, 0, 0, 0.651);
   --context-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  --tts-bg: rgba(30, 30, 40, 0.6);
+  --about-modal-bg: rgba(22, 22, 35, 0.9);
 }
 
 .light-theme {
@@ -61,7 +61,7 @@
   --box-shadow-settings: -2px 0 10px #aca3f033;
   --toast-shadow: 0 4px 12px rgba(80,66,185,0.15);
   --context-shadow: 0 4px 12px rgba(80,66,185,0.15);
-  --tts-bg: var(--sidenav-bg);
+  --about-modal-bg: rgba(201, 201, 209, 0.9);
 }
 
 /* ============================= */
@@ -254,6 +254,7 @@ body, h1, h2, h3, p, li, a, label, span {
   text-decoration: none;
   color: var(--font-color);
   transition: all 0.3s;
+  margin-left: 0px;
 }
 
 .sidenav .toc:last-child{
@@ -372,15 +373,19 @@ body, h1, h2, h3, p, li, a, label, span {
   font-size: 0.6em;
   width: fit-content;
   margin-left: 3em;
-  padding: none;
   margin-top: 5px;
   transition: color 0.3s ease;
   background-color: var(--code-bg);
   border-radius: 4px;
   margin-bottom: auto;
   font-style: italic;
+  color: var(--accent);
 }
 
+
+.context-menu .inspect {
+  padding-bottom: 0;
+}
 
 /* ============================= */
 /* 🔔 TOAST NOTIFICATIONS */
@@ -393,6 +398,7 @@ body, h1, h2, h3, p, li, a, label, span {
   display: flex;
   flex-direction: column;
   gap: 10px;
+
 }
 
 .toast {
@@ -407,6 +413,7 @@ body, h1, h2, h3, p, li, a, label, span {
   animation: toast-in 0.3s forwards;
   position: relative;
   overflow: hidden;
+  text-align: center;
 }
 
 .toast-exit {
@@ -660,7 +667,6 @@ img {
   left: 3px;
   width: 6px;
   height: 6px;
-  background-color: none;
   border-radius: 50%;
   opacity: 0;
   transition: opacity 0.2s ease;
@@ -809,3 +815,44 @@ html {
   opacity: 1;
 }
 
+/* ============================== */
+/* ABOUT ME */
+/* ============================== */
+.about-modal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background-color: var(--about-modal-bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.95);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.about-modal.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+.about-content {
+  background-color: var(--dark-bg);
+  padding: 30px 40px;
+  border-radius: 10px;
+  border: 1px solid var(--accent3);
+  box-shadow: var(--box-shadow);
+}
+
+#scramble-text {
+  font-family: var(--font);
+  font-size: 1.5rem;
+  color: var(--accent4);
+  text-align: center;
+  letter-spacing: 2px;
+  min-width: 180px;
+}
