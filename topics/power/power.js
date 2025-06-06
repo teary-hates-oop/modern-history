@@ -67,6 +67,8 @@ document.addEventListener('DOMContentLoaded', function () {
 /* ============================= */
 /* 📋 CUSTOM CONTEXT MENU */
 /* ============================= */
+let lastRightClickedImage = null;
+
 document.addEventListener('contextmenu', function (e) {
   e.preventDefault();
 
@@ -74,6 +76,7 @@ document.addEventListener('contextmenu', function (e) {
   const isImage = e.target.tagName === 'IMG';
   const shouldShowCopy = selection || isImage;
 
+  lastRightClickedImage = isImage ? e.target : null;
   const menu = document.getElementById('custom-context-menu');
   const copyOption = document.getElementById('copy-option');
 
@@ -89,9 +92,19 @@ document.addEventListener('contextmenu', function (e) {
   copyOption.onclick = function () {
     if (selection) {
       navigator.clipboard.writeText(selection).then(() => showToast("Text copied!"));
-    } else if (isImage) {
+    } else if (lastRightClickedImage) {
       const imgUrl = e.target.src;
-      navigator.clipboard.writeText(imgUrl).then(() => showToast("Image URL copied!"));
+        fetch(lastRightClickedImage.src)
+        .then(res => res.blob())
+        .then(blob => {
+          const item = new ClipboardItem({ [blob.type]: blob });
+          navigator.clipboard.write([item]).then(() => {
+            showToast("Image copied to clipboard!");
+          });
+        })
+        .catch(() => {
+          navigator.clipboard.writeText(lastRightClickedImage.src).then(() => showToast("Copied image URL (could not copy image directly)"));
+        });
     }
   };
 });
@@ -117,6 +130,18 @@ document.addEventListener('keydown', function (e) {
         showToast("Copied!");
         selection.removeAllRanges();
       });
+    } else if (lastRightClickedImage) {
+        fetch(lastRightClickedImage.src)
+        .then(res => res.blob())
+        .then(blob => {
+          const item = new ClipboardItem({ [blob.type]: blob });
+          navigator.clipboard.write([item]).then(() => {
+            showToast("🖼️ Image copied to clipboard!");
+          });
+        })
+        .catch(() => {
+          navigator.clipboard.writeText(lastRightClickedImage.src).then(() => showToast("Copied image URL (could not copy image directly)"));
+        });
     } else {
       showToast("Nothing selected to copy.");
     }
